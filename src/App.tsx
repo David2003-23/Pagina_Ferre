@@ -7,7 +7,7 @@ function App() {
     // Reset scroll position when page loads
     window.scrollTo(0, 0);
     
-    const scrollStep = 0.5; // Velocidad de scroll ajustada
+    const scrollStep = 1; // Velocidad de scroll ajustada
     let animationFrameId: number;
     let isScrolling = true;
     
