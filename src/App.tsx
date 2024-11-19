@@ -4,44 +4,48 @@ import { Sun } from 'lucide-react';
 
 function App() {
   useEffect(() => {
-    const scrollStep = 0.4; // Ajuste velocidad scroll (pixels por paso)
+    // Reset scroll position when page loads
+    window.scrollTo(0, 0);
+    
+    const scrollStep = 1; // Velocidad de scroll ajustada
     let animationFrameId: number;
+    let isScrolling = true;
     
     const scroll = () => {
-      window.scrollBy(0, scrollStep);
-      
-      // Check if we've reached the bottom
-      if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
-        // Smooth scroll back to top
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
+      if (isScrolling) {
+        window.scrollBy(0, scrollStep);
+        
+        // Cuando llegue al final, volver al principio
+        if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
+          window.scrollTo(0, 0);
+        }
       }
       
       animationFrameId = requestAnimationFrame(scroll);
     };
 
-    // Start scrolling after a short delay
-    const timeoutId = setTimeout(() => {
-      animationFrameId = requestAnimationFrame(scroll);
-    }, 2000);
+    // Iniciar auto-scroll inmediatamente
+    animationFrameId = requestAnimationFrame(scroll);
 
-    // Pause scrolling when hovering over the content
-    const container = document.getElementById('root');
-    container?.addEventListener('mouseenter', () => {
-      cancelAnimationFrame(animationFrameId);
-    });
+    // Control de scroll con mouse/touch
+    const handleInteraction = (pause: boolean) => {
+      isScrolling = !pause;
+    };
 
-    container?.addEventListener('mouseleave', () => {
-      animationFrameId = requestAnimationFrame(scroll);
-    });
+    // Eventos para PC
+    document.addEventListener('mouseenter', () => handleInteraction(true));
+    document.addEventListener('mouseleave', () => handleInteraction(false));
+
+    // Eventos para móviles
+    document.addEventListener('touchstart', () => handleInteraction(true));
+    document.addEventListener('touchend', () => handleInteraction(false));
 
     return () => {
-      clearTimeout(timeoutId);
       cancelAnimationFrame(animationFrameId);
-      container?.removeEventListener('mouseenter', () => {});
-      container?.removeEventListener('mouseleave', () => {});
+      document.removeEventListener('mouseenter', () => handleInteraction(true));
+      document.removeEventListener('mouseleave', () => handleInteraction(false));
+      document.removeEventListener('touchstart', () => handleInteraction(true));
+      document.removeEventListener('touchend', () => handleInteraction(false));
     };
   }, []);
 
